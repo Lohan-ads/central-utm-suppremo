@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suppremo Sono — Central de UTM</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --azul-claro: #E6EAED;
+    --azul-escuro: #001C42;
+    --azul-acinza: #A6C3D9;
+    --verde-limao: #C1FF72;
+    --white: #FFFFFF;
+    --bg: #F6F8F9;
+    --surface: #FFFFFF;
+    --text: #0F1E2E;
+    --text-muted: #5B6B7A;
+    --border: #DCE4E8;
+    --sidebar-w: 272px;
+    --radius: 14px;
+    --font-display: 'Manrope', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--verde-limao);
+    outline-offset: 2px;
+  }
+
+  /* SIDEBAR */
+  #sidebar {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    background: var(--azul-escuro);
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 26px 22px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .sidebar-logo .brand {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 19px;
+    color: var(--white);
+    line-height: 1.2;
+    letter-spacing: -0.2px;
+  }
+
+  .sidebar-logo .sub {
+    font-size: 11px;
+    color: var(--verde-limao);
+    margin-top: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
+
+  .sidebar-logo .tagline {
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 10px;
+    line-height: 1.4;
+  }
+
+  .status-conexao {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--verde-limao);
+    animation: pulse 1.5s infinite;
+  }
+
+  .status-dot.online { background: #4ADE80; animation: none; }
+  .status-dot.offline { background: #F87171; animation: none; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .nav-group-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    padding: 20px 22px 8px;
+    font-weight: 700;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 22px;
+    color: rgba(255,255,255,0.82);
+    font-size: 13.5px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s ease;
+  }
+
+  .nav-item:hover {
+    background: rgba(255,255,255,0.05);
+    color: var(--verde-limao);
+  }
+
+  .nav-item.active {
+    background: rgba(193,255,114,0.1);
+    color: var(--verde-limao);
+    border-left-color: var(--verde-limao);
+  }
+
+  .nav-item .icon { font-size: 15px; width: 18px; text-align: center; }
+  .nav-item .label { flex: 1; }
+
+  .nav-count {
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.85);
+    font-size: 10.5px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 700;
+  }
+
+  .nav-item.active .nav-count { background: var(--verde-limao); color: var(--azul-escuro); }
+
+  /* MAIN */
+  #main { flex: 1; padding: 34px 42px 90px; max-width: calc(100% - var(--sidebar-w)); }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+  .topbar-pill {
+    font-size: 11.5px; font-weight: 700; padding: 5px 12px; border-radius: 20px;
+    background: var(--azul-claro); color: var(--azul-escuro); text-transform: uppercase; letter-spacing: 0.4px;
+  }
+
+  .section-title { font-family: var(--font-display); font-weight: 800; font-size: 27px; margin-bottom: 6px; color: var(--azul-escuro); letter-spacing: -0.3px; }
+  .section-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 26px; max-width: 720px; line-height: 1.55; }
+
+  /* MODE TOGGLE removed — só modo simples */
+
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px 28px;
+    margin-bottom: 18px;
+  }
+
+  .step-block { margin-bottom: 24px; }
+  .step-block:last-child { margin-bottom: 0; }
+
+  .step-label {
+    font-size: 13.5px; font-weight: 700; color: var(--azul-escuro); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .step-num {
+    background: var(--azul-escuro); color: var(--white); width: 20px; height: 20px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;
+  }
+
+  .step-hint { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+  .big-select, .big-input {
+    width: 100%; padding: 13px 14px; border: 1.5px solid var(--border); border-radius: 10px;
+    font-size: 14.5px; font-family: var(--font-body); color: var(--text); background: var(--white);
+  }
+
+  .big-select:focus, .big-input:focus { border-color: var(--azul-acinza); outline: none; }
+
+  .option-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+
+  .option-card {
+    border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 12px; text-align: center;
+    cursor: pointer; transition: all 0.15s ease; background: var(--white);
+  }
+
+  .option-card:hover { border-color: var(--azul-acinza); background: var(--azul-claro); }
+  .option-card.selected { border-color: var(--azul-escuro); background: var(--azul-claro); box-shadow: 0 0 0 3px rgba(0,28,66,0.08); }
+
+  .option-icon { font-size: 22px; margin-bottom: 6px; }
+  .option-title { font-weight: 700; font-size: 13px; color: var(--text); }
+
+  .preview-card { background: var(--azul-claro); border: 1px solid var(--azul-acinza); border-radius: 12px; padding: 18px 20px; }
+  .preview-label { font-size: 11.5px; font-weight: 800; color: var(--azul-escuro); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .preview-text { font-size: 13.5px; color: var(--text); line-height: 1.5; }
+
+  .output-box {
+    background: var(--azul-escuro); color: var(--verde-limao); padding: 13px 15px; border-radius: 8px;
+    font-family: 'SF Mono', Consolas, monospace; font-size: 12.5px; word-break: break-all; line-height: 1.5;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px; padding: 10px 16px; border-radius: 8px;
+    font-size: 13.5px; font-weight: 700; cursor: pointer; border: none; transition: all 0.15s ease;
+    font-family: var(--font-body);
+  }
+  .btn svg { width: 15px; height: 15px; }
+  .btn-primary { background: var(--verde-limao); color: var(--azul-escuro); }
+  .btn-primary:hover { filter: brightness(0.95); }
+  .btn-secondary { background: var(--azul-escuro); color: var(--white); }
+  .btn-secondary:hover { filter: brightness(1.15); }
+  .btn-ghost { background: transparent; color: var(--azul-escuro); border: 1.5px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--azul-acinza); }
+  .btn.copied { background: #4ADE80 !important; color: var(--azul-escuro) !important; }
+
+  .warning-box {
+    background: #FFF8E1; border-left: 4px solid #E8B93A; padding: 14px 16px; border-radius: 8px;
+    margin-top: 14px; font-size: 13px; color: #6B5A00; line-height: 1.5;
+  }
+  .warning-box strong { color: #8A6D00; }
+
+  .info-box {
+    background: var(--azul-claro); border-left: 4px solid var(--azul-escuro); padding: 14px 16px; border-radius: 8px;
+    margin-top: 14px; font-size: 13px; color: var(--azul-escuro); line-height: 1.5;
+  }
+
+  /* UTM CARD (links salvos) */
+  .utm-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 10px; }
+  .utm-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  .utm-name { display: flex; align-items: center; gap: 10px; }
+  .utm-title { font-weight: 700; font-size: 14px; color: var(--text); }
+  .badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.4px; background: var(--azul-claro); color: var(--azul-escuro); }
+  .utm-url { background: #F6F8F9; border: 1px solid var(--border); padding: 10px 12px; border-radius: 6px; font-family: monospace; font-size: 11.5px; word-break: break-all; color: var(--text-muted); }
+  .utm-meta { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+  .delete-btn { background: none; border: none; color: #C0392B; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+
+  /* DOC TABLE */
+  table.doc-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+  table.doc-table th { background: var(--azul-escuro); color: var(--white); text-align: left; padding: 10px 12px; font-weight: 700; }
+  table.doc-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+  table.doc-table tr:nth-child(even) td { background: #FAFBFC; }
+  code.inline { background: var(--azul-claro); color: var(--azul-escuro); padding: 2px 6px; border-radius: 4px; font-size: 12px; font-family: monospace; }
+
+  .code-block {
+    background: var(--azul-escuro); color: var(--verde-limao); padding: 16px 18px; border-radius: 10px;
+    font-family: 'SF Mono', Consolas, monospace; font-size: 12.5px; line-height: 1.7; margin: 14px 0; overflow-x: auto;
+  }
+
+  .toast {
+    position: fixed; bottom: 30px; right: 30px; background: var(--azul-escuro); color: var(--white);
+    padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 1000; opacity: 0; transform: translateY(20px); transition: all 0.3s ease;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 900px) {
+    body { flex-direction: column; }
+    #sidebar { width: 100%; min-width: 100%; height: auto; position: relative; }
+    #main { max-width: 100%; padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">Suppremo Sono</div>
+    <div class="sub">Central de UTM</div>
+    <div class="tagline">"Qualidade de sono para todos."</div>
+    <div class="status-conexao">
+      <span class="status-dot"></span>
+      <span id="status-texto">Conectando...</span>
+    </div>
+  </div>
+
+  <div class="nav-group-label">Gerador</div>
+  <a class="nav-item active" onclick="showSection('gerador', this)">
+    <span class="icon">✨</span><span class="label">Gerador de Link</span>
+  </a>
+
+  <div class="nav-group-label">Links salvos</div>
+  <a class="nav-item" onclick="showSection('instagram', this)">
+    <span class="icon">📸</span><span class="label">Instagram</span><span class="nav-count">0</span>
+  </a>
+  <a class="nav-item" onclick="showSection('whatsapp', this)">
+    <span class="icon">💬</span><span class="label">WhatsApp</span><span class="nav-count">0</span>
+  </a>
+  <a class="nav-item" onclick="showSection('tiktok', this)">
+    <span class="icon">🎵</span><span class="label">TikTok</span><span class="nav-count">0</span>
+  </a>
+  <a class="nav-item" onclick="showSection('youtube', this)">
+    <span class="icon">▶️</span><span class="label">YouTube</span><span class="nav-count">0</span>
+  </a>
+  <a class="nav-item" onclick="showSection('linkbio', this)">
+    <span class="icon">🔗</span><span class="label">Link na Bio</span><span class="nav-count">0</span>
+  </a>
+
+  <div class="nav-group-label">Documentação</div>
+  <a class="nav-item" onclick="showSection('meta-paga', this)">
+    <span class="icon">🎯</span><span class="label">Meta Ads (pago)</span>
+  </a>
+  <a class="nav-item" onclick="showSection('google-ads', this)">
+    <span class="icon">🔍</span><span class="label">Google Ads</span>
+  </a>
+  <a class="nav-item" onclick="showSection('padroes', this)">
+    <span class="icon">📋</span><span class="label">Padrão de UTM</span>
+  </a>
+</aside>
+
+<main id="main">
+
+  <!-- GERADOR -->
+  <section class="section active" id="sec-gerador">
+    <div class="topbar">
+      <span class="topbar-pill">✨ Gerador</span>
+      <span style="font-size: 13px; color: var(--text-muted);">Pra Instagram orgânico, WhatsApp, TikTok, YouTube e Link na Bio</span>
+    </div>
+    <div class="section-title">Gerador de Link com UTM</div>
+    <p class="section-desc">Meta paga e Google Ads não usam esse gerador — eles têm parâmetros dinâmicos próprios, configurados uma vez na plataforma. Veja em "Documentação" ao lado. Esse gerador é só pros canais onde uma pessoa cola o link manualmente.</p>
+
+    <div class="form-card">
+      <div class="step-block">
+        <div class="step-label"><span class="step-num">1</span> Onde você vai divulgar?</div>
+        <div class="option-cards" id="canal-cards"></div>
+      </div>
+
+      <div class="step-block" id="bloco-produto" style="display:none;">
+        <div class="step-label"><span class="step-num">2</span> Qual produto?</div>
+        <select id="s-produto" class="big-select" onchange="atualizarWizard()">
+          <option value="">Escolha o produto...</option>
+        </select>
+        <div class="step-hint" id="produto-url-hint"></div>
+      </div>
+
+      <div class="step-block" id="bloco-acao" style="display:none;">
+        <div class="step-label"><span class="step-num">3</span> Do que se trata essa ação?</div>
+        <input type="text" id="s-acao" class="big-input" placeholder="Ex: Story oferta julho, Reels criativo Natália, grupo VIP..." oninput="atualizarWizard()">
+        <div class="step-hint">Escreva naturalmente. Vira o utm_campaign, o sistema ajusta o formato sozinho.</div>
+      </div>
+
+      <div class="step-block" id="bloco-nome" style="display:none;">
+        <div class="step-label"><span class="step-num">4</span> Nome pra identificar essa UTM no painel</div>
+        <input type="text" id="s-nome" class="big-input" placeholder="Ex: Story Duo oferta - 20/07" oninput="atualizarWizard()">
+      </div>
+
+      <div class="step-block" id="bloco-preview" style="display:none;">
+        <div class="preview-card">
+          <div class="preview-label">📋 Link gerado</div>
+          <div class="preview-text" id="preview-explicacao" style="margin-bottom:10px;"></div>
+          <div class="output-box" id="s-output"></div>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap;">
+          <button class="btn btn-ghost" onclick="testarLink()" id="s-test-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Testar link
+          </button>
+          <button class="btn btn-ghost" onclick="copySimples()" id="s-copy-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copiar link
+          </button>
+          <button class="btn btn-primary" onclick="salvarSimples()" id="s-save-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Salvar no painel + Copiar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>💡 Sempre teste antes de publicar.</strong> Clique em "Testar link" e confirme que abriu a página certa do produto antes de colar no story, na bio ou em qualquer lugar.
+    </div>
+    <div class="info-box">
+      <strong>Como funciona o salvamento:</strong> as UTMs salvas ficam num banco compartilhado. Qualquer pessoa da equipe que abrir esse painel, em qualquer dispositivo, vê as mesmas UTMs em tempo real.
+    </div>
+  </section>
+
+  <!-- SEÇÕES DE LINKS SALVOS (uma por canal) -->
+  <section class="section" id="sec-instagram">
+    <div class="topbar"><span class="topbar-pill">📸 Instagram</span></div>
+    <div class="section-title">Instagram — Links salvos</div>
+    <p class="section-desc">UTMs geradas pro Instagram orgânico (bio, stories, posts, direct).</p>
+    <div id="cards-instagram"></div>
+  </section>
+
+  <section class="section" id="sec-whatsapp">
+    <div class="topbar"><span class="topbar-pill">💬 WhatsApp</span></div>
+    <div class="section-title">WhatsApp — Links salvos</div>
+    <p class="section-desc">UTMs geradas pra links compartilhados via WhatsApp (grupos, status, atendimento).</p>
+    <div id="cards-whatsapp"></div>
+  </section>
+
+  <section class="section" id="sec-tiktok">
+    <div class="topbar"><span class="topbar-pill">🎵 TikTok</span></div>
+    <div class="section-title">TikTok — Links salvos</div>
+    <p class="section-desc">UTMs geradas pra bio e vídeos do TikTok.</p>
+    <div id="cards-tiktok"></div>
+  </section>
+
+  <section class="section" id="sec-youtube">
+    <div class="topbar"><span class="topbar-pill">▶️ YouTube</span></div>
+    <div class="section-title">YouTube — Links salvos</div>
+    <p class="section-desc">UTMs geradas pra descrição de vídeos e comunidade do YouTube.</p>
+    <div id="cards-youtube"></div>
+  </section>
+
+  <section class="section" id="sec-linkbio">
+    <div class="topbar"><span class="topbar-pill">🔗 Link na Bio</span></div>
+    <div class="section-title">Link na Bio — Links salvos</div>
+    <p class="section-desc">UTMs geradas pra ferramentas de link na bio (Linktree ou similar).</p>
+    <div id="cards-linkbio"></div>
+  </section>
+
+  <!-- DOC: META PAGA -->
+  <section class="section" id="sec-meta-paga">
+    <div class="topbar"><span class="topbar-pill">🎯 Documentação</span></div>
+    <div class="section-title">Meta Ads (pago)</div>
+    <p class="section-desc">Anúncio pago não usa o gerador. A Meta preenche os parâmetros sozinha, clique a clique, através de parâmetros dinâmicos configurados uma vez no Gerenciador de Anúncios.</p>
+
+    <div class="form-card">
+      <div class="step-label" style="margin-bottom: 10px;">Cole isto no campo "Parâmetros de URL" (nível de conta ou de campanha)</div>
+      <div class="code-block">utm_source={{site_source_name}}&amp;utm_medium=cpc&amp;utm_campaign={{campaign.name}}&amp;utm_content={{ad.name}}</div>
+      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+        <strong>{{site_source_name}}</strong> retorna <code class="inline">fb</code> ou <code class="inline">ig</code> automaticamente, sem precisar escolher. <strong>{{campaign.name}}</strong> e <strong>{{ad.name}}</strong> sempre batem exato com o nome real na conta, mesmo se a campanha for renomeada depois. Configurado uma vez, nunca mais precisa mexer por anúncio.
+      </p>
+      <div class="warning-box">
+        <strong>Não usar UTM manual em anúncio pago da Meta.</strong> Colar utm_source/campaign fixo na URL de um anúncio corre o risco de divergir do nome real da campanha (e quebrar a importação de custo no GA4). Os parâmetros dinâmicos resolvem isso sozinhos.
+      </div>
+    </div>
+  </section>
+
+  <!-- DOC: GOOGLE ADS -->
+  <section class="section" id="sec-google-ads">
+    <div class="topbar"><span class="topbar-pill">🔍 Documentação</span></div>
+    <div class="section-title">Google Ads</div>
+    <p class="section-desc">Google Ads não usa UTM manual nem parâmetro dinâmico adicional. O auto-tagging nativo (gclid) já está funcionando corretamente, confirmado pelo GA4 mostrando <code class="inline">google / cpc</code> como uma única origem consolidada.</p>
+
+    <div class="form-card">
+      <div class="step-label" style="margin-bottom: 10px;">Como ver performance por campanha no GA4</div>
+      <p style="font-size: 13.5px; color: var(--text); line-height: 1.7; margin-bottom: 12px;">
+        <strong>Caminho 1:</strong> Publicidade → Google Ads, no menu lateral do GA4. Relatório nativo já cruzado com custo, sessões, conversões e receita por campanha.
+      </p>
+      <p style="font-size: 13.5px; color: var(--text); line-height: 1.7;">
+        <strong>Caminho 2:</strong> Explorar → nova exploração livre, usando "Nome da campanha do Google Ads" e "Grupo de anúncios do Google Ads" como dimensões.
+      </p>
+      <div class="info-box">
+        Como a estrutura do Google Ads já separa Performance Max por modelo (Pro, Plus, Duo, Basic, Sofá-cama), cada campanha aparece com o nome exato dela nesses relatórios, sem nenhuma configuração extra.
+      </div>
+    </div>
+  </section>
+
+  <!-- DOC: PADRÕES -->
+  <section class="section" id="sec-padroes">
+    <div class="topbar"><span class="topbar-pill">📋 Documentação</span></div>
+    <div class="section-title">Padrão de UTM da Suppremo Sono</div>
+    <p class="section-desc">Referência rápida de como cada parâmetro é usado nesse painel.</p>
+
+    <table class="doc-table">
+      <tr><th>Parâmetro</th><th>Contém</th><th>Exemplo</th></tr>
+      <tr><td>utm_source</td><td>Plataforma (canal)</td><td>instagram, whatsapp, tiktok, youtube, linkbio</td></tr>
+      <tr><td>utm_medium</td><td>Tipo de tráfego, fixo por canal</td><td>social, bio</td></tr>
+      <tr><td>utm_campaign</td><td>Produto + ação</td><td>duo_story_oferta_julho</td></tr>
+      <tr><td>utm_content</td><td>Identificação específica / criativo</td><td>story_criativo_natalia_2007</td></tr>
+    </table>
+
+    <table class="doc-table">
+      <tr><th>Canal</th><th>utm_medium</th></tr>
+      <tr><td>Instagram (orgânico)</td><td>social</td></tr>
+      <tr><td>WhatsApp</td><td>social</td></tr>
+      <tr><td>TikTok</td><td>social</td></tr>
+      <tr><td>YouTube</td><td>social</td></tr>
+      <tr><td>Link na Bio</td><td>bio</td></tr>
+    </table>
+
+    <div class="warning-box">
+      <strong>Nunca digite o canal de duas formas diferentes.</strong> "Instagram" e "instagram" viram origens diferentes pro GA4. Por isso o gerador usa lista fixa em vez de texto livre pro canal.
+    </div>
+  </section>
+
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ===== CONFIGURAÇÃO =====
+
+const PRODUTOS = {
+  pro:   { nome: 'Pro',        url: 'https://suppremosono.com.br/produtos/colchao-pro-d33-tecnologia-adapt-100-espuma-alto-21cm/' },
+  duo:   { nome: 'Duo',        url: 'https://suppremosono.com.br/produtos/colchao-duo-d33-dupla-camada-de-conforto-100-espuma-16cm/' },
+  plus:  { nome: 'Plus',       url: 'https://suppremosono.com.br/produtos/colchao-plus-d33-bordado-100-espuma-premium-dupla-face-17cm/' },
+  basic: { nome: 'Basic',      url: 'https://suppremosono.com.br/produtos/colchao-basic-d33-ortopedico-firme-100-espuma-12cm/' },
+  sofa:  { nome: 'Sofá-cama',  url: 'https://suppremosono.com.br/produtos/sofa-cama-casal-modular-2-em-1-na-caixa-188m-grande-espacoso-boucle-premium/' },
+  geral: { nome: 'Geral (home, sem produto específico)', url: 'https://suppremosono.com.br/' }
+};
+
+const CANAIS = {
+  instagram: { nome: 'Instagram', medium: 'social', icon: '📸', secao: 'instagram' },
+  whatsapp:  { nome: 'WhatsApp',  medium: 'social', icon: '💬', secao: 'whatsapp' },
+  tiktok:    { nome: 'TikTok',    medium: 'social', icon: '🎵', secao: 'tiktok' },
+  youtube:   { nome: 'YouTube',   medium: 'social', icon: '▶️', secao: 'youtube' },
+  linkbio:   { nome: 'Link na Bio', medium: 'bio',  icon: '🔗', secao: 'linkbio' }
+};
+
+// ⚠️ CONFIGURAR: troque pela URL e chave do projeto Supabase da Suppremo Sono
+// (o painel funciona pra gerar e copiar link mesmo sem isso configurado —
+//  só o salvamento compartilhado no painel fica desativado até configurar)
+const SUPABASE_URL = 'https://pmazsaanwwlmvbaumwhc.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtYXpzYWFud3dsbXZiYXVtd2hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NjUwODcsImV4cCI6MjEwMTU0MTA4N30.UZe4GpmwnRPi5Y_UvlvCpNsGhSP2nsjmcqCUOHEUbeM';
+const TABELA = 'suppremo_utms_custom';
+
+let supabaseClient = null;
+let supabaseConfigurado = SUPABASE_URL.startsWith('http') && SUPABASE_KEY.length > 20;
+if (supabaseConfigurado) {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
+
+let utmsCustom = {};
+let dbConectado = false;
+let canalSelecionado = null;
+
+// ===== UTIL =====
+
+function normalizarUTM(texto) {
+  return texto
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s_]/g, '')
+    .trim()
+    .replace(/\s+/g, '_');
+}
+
+// ===== MONTAGEM DO WIZARD =====
+
+function montarCanalCards() {
+  const container = document.getElementById('canal-cards');
+  container.innerHTML = Object.entries(CANAIS).map(([key, c]) => `
+    <div class="option-card" id="opt-canal-${key}" onclick="selecionarCanal('${key}')">
+      <div class="option-icon">${c.icon}</div>
+      <div class="option-title">${c.nome}</div>
+    </div>
+  `).join('');
+}
+
+function montarProdutoSelect() {
+  const select = document.getElementById('s-produto');
+  Object.entries(PRODUTOS).forEach(([key, p]) => {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = p.nome;
+    select.appendChild(opt);
+  });
+}
+
+function selecionarCanal(key) {
+  canalSelecionado = key;
+  Object.keys(CANAIS).forEach(k => document.getElementById('opt-canal-' + k).classList.toggle('selected', k === key));
+  document.getElementById('bloco-produto').style.display = 'block';
+  atualizarWizard();
+}
+
+function atualizarWizard() {
+  const produto = document.getElementById('s-produto').value;
+  const blocoAcao = document.getElementById('bloco-acao');
+  const blocoNome = document.getElementById('bloco-nome');
+  const blocoPreview = document.getElementById('bloco-preview');
+  const hint = document.getElementById('produto-url-hint');
+
+  if (!canalSelecionado) return;
+
+  if (!produto) {
+    blocoAcao.style.display = 'none';
+    blocoNome.style.display = 'none';
+    blocoPreview.style.display = 'none';
+    hint.textContent = '';
+    return;
+  }
+
+  hint.textContent = '→ ' + PRODUTOS[produto].url;
+  blocoAcao.style.display = 'block';
+
+  const acao = document.getElementById('s-acao').value.trim();
+  if (!acao) {
+    blocoNome.style.display = 'none';
+    blocoPreview.style.display = 'none';
+    return;
+  }
+
+  blocoNome.style.display = 'block';
+
+  const nome = document.getElementById('s-nome').value.trim();
+  if (!nome) {
+    blocoPreview.style.display = 'none';
+    return;
+  }
+
+  blocoPreview.style.display = 'block';
+  gerarPreview();
+}
+
+function montarLink() {
+  const produto = document.getElementById('s-produto').value;
+  const acao = document.getElementById('s-acao').value.trim();
+  const nome = document.getElementById('s-nome').value.trim();
+  if (!canalSelecionado || !produto || !acao || !nome) return null;
+
+  const canal = CANAIS[canalSelecionado];
+  const baseUrl = PRODUTOS[produto].url;
+  const campaign = normalizarUTM(produto + '_' + acao);
+  const content = normalizarUTM(nome);
+
+  const url = `${baseUrl}?utm_source=${canalSelecionado}&utm_medium=${canal.medium}&utm_campaign=${campaign}&utm_content=${content}`;
+
+  return { url, canal, produto, campaign, content, secao: canal.secao, nomeDescritivo: nome };
+}
+
+function gerarPreview() {
+  const r = montarLink();
+  if (!r) return;
+  document.getElementById('s-output').textContent = r.url;
+  document.getElementById('preview-explicacao').innerHTML =
+    `Link do produto <strong>${PRODUTOS[document.getElementById('s-produto').value].nome}</strong> pelo canal <strong>${r.canal.nome}</strong>.`;
+}
+
+function testarLink() {
+  const r = montarLink();
+  if (!r) return;
+  window.open(r.url, '_blank');
+}
+
+function copySimples() {
+  const r = montarLink();
+  if (!r) return;
+  const btn = document.getElementById('s-copy-btn');
+  navigator.clipboard.writeText(r.url).then(() => marcarCopiado(btn, 'Copiado!'));
+}
+
+async function salvarSimples() {
+  const r = montarLink();
+  if (!r) return;
+
+  if (!supabaseConfigurado) {
+    navigator.clipboard.writeText(r.url);
+    showToast('⚠️ Banco ainda não configurado — link copiado, mas não foi salvo no painel');
+    return;
+  }
+
+  const btn = document.getElementById('s-save-btn');
+  const original = btn.innerHTML;
+  btn.innerHTML = 'Salvando...';
+  btn.disabled = true;
+
+  const salvo = await salvarCustomBanco(r.secao, r.nomeDescritivo, r.url);
+  btn.disabled = false;
+
+  if (!salvo) { btn.innerHTML = original; return; }
+
+  await carregarCustom();
+  renderAll();
+
+  navigator.clipboard.writeText(r.url).then(() => {
+    marcarCopiado(btn, 'Salvo e copiado!', original);
+    showToast('✅ Salvo no painel pra toda a equipe');
+  });
+
+  document.getElementById('s-acao').value = '';
+  document.getElementById('s-nome').value = '';
+  document.getElementById('s-produto').value = '';
+  canalSelecionado = null;
+  Object.keys(CANAIS).forEach(k => document.getElementById('opt-canal-' + k).classList.remove('selected'));
+  atualizarWizard();
+}
+
+function marcarCopiado(btn, texto, restaurarPara) {
+  const original = restaurarPara || btn.innerHTML;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> ' + texto;
+  btn.classList.add('copied');
+  showToast();
+  setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2200);
+}
+
+function showToast(msg = '✅ Link copiado!') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+// ===== SUPABASE =====
+
+async function carregarCustom() {
+  if (!supabaseConfigurado) { dbConectado = false; atualizarStatusConexao(); return; }
+  try {
+    const { data, error } = await supabaseClient.from(TABELA).select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    utmsCustom = {};
+    (data || []).forEach(row => {
+      if (!utmsCustom[row.secao]) utmsCustom[row.secao] = [];
+      const dt = new Date(row.created_at);
+      const dateStr = `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
+      utmsCustom[row.secao].push({ id: row.id, nome: row.nome, url: row.url, createdAt: dateStr });
+    });
+    dbConectado = true;
+  } catch (e) {
+    console.error('Erro ao carregar UTMs do banco:', e);
+    dbConectado = false;
+  }
+  atualizarStatusConexao();
+}
+
+async function salvarCustomBanco(secao, nome, url) {
+  try {
+    const { data, error } = await supabaseClient.from(TABELA).insert([{ secao, nome, url }]).select();
+    if (error) throw error;
+    return data[0];
+  } catch (e) {
+    console.error('Erro ao salvar UTM:', e);
+    alert('Não foi possível salvar no banco compartilhado. Verifique a conexão e tente novamente.');
+    return null;
+  }
+}
+
+async function deletarUTM(id, secao) {
+  if (!confirm('Excluir essa UTM? Ela some pra todo mundo do painel.')) return;
+  try {
+    const { error } = await supabaseClient.from(TABELA).delete().eq('id', id);
+    if (error) throw error;
+    await carregarCustom();
+    renderAll();
+    showToast('🗑️ Removido pra todos');
+  } catch (e) {
+    alert('Não foi possível excluir. Tente novamente.');
+  }
+}
+
+function renderCards(secao) {
+  const container = document.getElementById('cards-' + secao);
+  if (!container) return;
+  const lista = utmsCustom[secao] || [];
+  if (lista.length === 0) {
+    container.innerHTML = '<p style="color: var(--text-muted); font-size: 13.5px;">Nenhuma UTM salva ainda pra esse canal.</p>';
+    return;
+  }
+  container.innerHTML = lista.map(item => `
+    <div class="utm-card">
+      <div class="utm-header">
+        <div class="utm-name"><span class="utm-title">${item.nome}</span></div>
+        <button class="delete-btn" onclick="deletarUTM('${item.id}', '${secao}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/></svg>
+          Excluir
+        </button>
+      </div>
+      <div class="utm-url">${item.url}</div>
+      <div style="display:flex; align-items:center; margin-top:10px;">
+        <button class="btn btn-ghost" onclick="copyText('${item.url.replace(/'/g, "\\'")}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copiar link
+        </button>
+      </div>
+      <div class="utm-meta">📅 Criado em ${item.createdAt}</div>
+    </div>
+  `).join('');
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => showToast());
+}
+
+function renderAll() {
+  Object.keys(CANAIS).forEach(k => renderCards(CANAIS[k].secao));
+  atualizarContadores();
+}
+
+function atualizarContadores() {
+  document.querySelectorAll('.nav-item').forEach(item => {
+    const badge = item.querySelector('.nav-count');
+    if (!badge) return;
+    const label = item.querySelector('.label')?.textContent || '';
+    const canalKey = Object.keys(CANAIS).find(k => CANAIS[k].nome === label);
+    if (canalKey) badge.textContent = (utmsCustom[CANAIS[canalKey].secao] || []).length;
+  });
+}
+
+function atualizarStatusConexao() {
+  const dot = document.querySelector('.status-dot');
+  const texto = document.getElementById('status-texto');
+  if (!supabaseConfigurado) {
+    dot.classList.add('offline'); dot.classList.remove('online');
+    texto.textContent = 'Banco não configurado';
+    return;
+  }
+  if (dbConectado) {
+    dot.classList.add('online'); dot.classList.remove('offline');
+    texto.textContent = 'Sincronizado';
+  } else {
+    dot.classList.add('offline'); dot.classList.remove('online');
+    texto.textContent = 'Sem conexão com o banco';
+  }
+}
+
+// ===== NAVEGAÇÃO =====
+
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===== INICIALIZAR =====
+
+async function iniciar() {
+  montarCanalCards();
+  montarProdutoSelect();
+  await carregarCustom();
+  renderAll();
+}
+
+iniciar();
+</script>
+
+</body>
+</html>
