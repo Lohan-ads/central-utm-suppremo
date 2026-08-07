@@ -320,9 +320,6 @@
   <a class="nav-item" onclick="showSection('youtube', this)">
     <span class="icon">▶️</span><span class="label">YouTube</span><span class="nav-count">0</span>
   </a>
-  <a class="nav-item" onclick="showSection('linkbio', this)">
-    <span class="icon">🔗</span><span class="label">Link na Bio</span><span class="nav-count">0</span>
-  </a>
 
   <div class="nav-group-label">Documentação</div>
   <a class="nav-item" onclick="showSection('meta-paga', this)">
@@ -342,7 +339,7 @@
   <section class="section active" id="sec-gerador">
     <div class="topbar">
       <span class="topbar-pill">✨ Gerador</span>
-      <span style="font-size: 13px; color: var(--text-muted);">Pra Instagram orgânico, WhatsApp, TikTok, YouTube e Link na Bio</span>
+      <span style="font-size: 13px; color: var(--text-muted);">Pra Instagram orgânico, WhatsApp, TikTok e YouTube</span>
     </div>
     <div class="section-title">Gerador de Link com UTM</div>
     <p class="section-desc">Meta paga e Google Ads não usam esse gerador — eles têm parâmetros dinâmicos próprios, configurados uma vez na plataforma. Veja em "Documentação" ao lado. Esse gerador é só pros canais onde uma pessoa cola o link manualmente.</p>
@@ -361,14 +358,22 @@
         <div class="step-hint" id="produto-url-hint"></div>
       </div>
 
+      <div class="step-block" id="bloco-posicionamento" style="display:none;">
+        <div class="step-label"><span class="step-num">3</span> Onde dentro do canal?</div>
+        <select id="s-posicionamento" class="big-select" onchange="atualizarWizard()">
+          <option value="">Escolha...</option>
+        </select>
+        <div class="step-hint" id="posicionamento-hint"></div>
+      </div>
+
       <div class="step-block" id="bloco-acao" style="display:none;">
-        <div class="step-label"><span class="step-num">3</span> Do que se trata essa ação?</div>
+        <div class="step-label"><span class="step-num">4</span> Do que se trata essa ação?</div>
         <input type="text" id="s-acao" class="big-input" placeholder="Ex: Story oferta julho, Reels criativo Natália, grupo VIP..." oninput="atualizarWizard()">
         <div class="step-hint">Escreva naturalmente. Vira o utm_campaign, o sistema ajusta o formato sozinho.</div>
       </div>
 
       <div class="step-block" id="bloco-nome" style="display:none;">
-        <div class="step-label"><span class="step-num">4</span> Nome pra identificar essa UTM no painel</div>
+        <div class="step-label"><span class="step-num">5</span> Nome pra identificar essa UTM no painel</div>
         <input type="text" id="s-nome" class="big-input" placeholder="Ex: Story Duo oferta - 20/07" oninput="atualizarWizard()">
       </div>
 
@@ -407,7 +412,7 @@
   <section class="section" id="sec-instagram">
     <div class="topbar"><span class="topbar-pill">📸 Instagram</span></div>
     <div class="section-title">Instagram — Links salvos</div>
-    <p class="section-desc">UTMs geradas pro Instagram orgânico (bio, stories, posts, direct).</p>
+    <p class="section-desc">UTMs geradas pro Instagram orgânico, de qualquer posicionamento (post/reels, story, link na bio, direct).</p>
     <div id="cards-instagram"></div>
   </section>
 
@@ -421,7 +426,7 @@
   <section class="section" id="sec-tiktok">
     <div class="topbar"><span class="topbar-pill">🎵 TikTok</span></div>
     <div class="section-title">TikTok — Links salvos</div>
-    <p class="section-desc">UTMs geradas pra bio e vídeos do TikTok.</p>
+    <p class="section-desc">UTMs geradas pro TikTok, de qualquer posicionamento (vídeo, link na bio).</p>
     <div id="cards-tiktok"></div>
   </section>
 
@@ -430,13 +435,6 @@
     <div class="section-title">YouTube — Links salvos</div>
     <p class="section-desc">UTMs geradas pra descrição de vídeos e comunidade do YouTube.</p>
     <div id="cards-youtube"></div>
-  </section>
-
-  <section class="section" id="sec-linkbio">
-    <div class="topbar"><span class="topbar-pill">🔗 Link na Bio</span></div>
-    <div class="section-title">Link na Bio — Links salvos</div>
-    <p class="section-desc">UTMs geradas pra ferramentas de link na bio (Linktree ou similar).</p>
-    <div id="cards-linkbio"></div>
   </section>
 
   <!-- DOC: META PAGA -->
@@ -485,23 +483,30 @@
 
     <table class="doc-table">
       <tr><th>Parâmetro</th><th>Contém</th><th>Exemplo</th></tr>
-      <tr><td>utm_source</td><td>Plataforma (canal)</td><td>instagram, whatsapp, tiktok, youtube, linkbio</td></tr>
-      <tr><td>utm_medium</td><td>Tipo de tráfego, fixo por canal</td><td>social, bio</td></tr>
-      <tr><td>utm_campaign</td><td>Produto + ação</td><td>duo_story_oferta_julho</td></tr>
-      <tr><td>utm_content</td><td>Identificação específica / criativo</td><td>story_criativo_natalia_2007</td></tr>
+      <tr><td>utm_source</td><td>Plataforma (canal)</td><td>instagram, whatsapp, tiktok, youtube</td></tr>
+      <tr><td>utm_medium</td><td>Tipo de tráfego, fixo por canal</td><td>social</td></tr>
+      <tr><td>utm_campaign</td><td>Produto + ação (ou "perfil" se for link fixo)</td><td>duo_story_oferta_julho</td></tr>
+      <tr><td>utm_content</td><td>Posicionamento + identificação específica</td><td>story_criativo_natalia_2007</td></tr>
     </table>
+
+    <div class="info-box">
+      <strong>Link na Bio não é um canal, é um posicionamento.</strong> Existe link na bio do Instagram, do TikTok e "sobre o canal" do YouTube. Por isso o gerador pergunta primeiro a plataforma real (utm_source correto) e só depois pergunta onde dentro dela o link vai ficar.
+    </div>
 
     <table class="doc-table">
-      <tr><th>Canal</th><th>utm_medium</th></tr>
-      <tr><td>Instagram (orgânico)</td><td>social</td></tr>
-      <tr><td>WhatsApp</td><td>social</td></tr>
-      <tr><td>TikTok</td><td>social</td></tr>
-      <tr><td>YouTube</td><td>social</td></tr>
-      <tr><td>Link na Bio</td><td>bio</td></tr>
+      <tr><th>Canal</th><th>Posicionamentos disponíveis</th></tr>
+      <tr><td>Instagram</td><td>Post/Reels, Story, Direct, Link na Bio (fixo)</td></tr>
+      <tr><td>TikTok</td><td>Vídeo, Link na Bio (fixo)</td></tr>
+      <tr><td>YouTube</td><td>Descrição do vídeo, Comunidade, Sobre o canal (fixo)</td></tr>
+      <tr><td>WhatsApp</td><td>Status, Grupo, Atendimento direto</td></tr>
     </table>
 
+    <div class="info-box">
+      <strong>Por que "Link na Bio" não pede uma ação:</strong> ao contrário de um story ou um vídeo, que promovem algo pontual, o link fixo do perfil normalmente não muda todo dia. Por isso, pra esses posicionamentos, o gerador pula a pergunta de "ação" e usa <code class="inline">perfil</code> automaticamente no utm_campaign.
+    </div>
+
     <div class="warning-box">
-      <strong>Nunca digite o canal de duas formas diferentes.</strong> "Instagram" e "instagram" viram origens diferentes pro GA4. Por isso o gerador usa lista fixa em vez de texto livre pro canal.
+      <strong>Nunca digite o canal de duas formas diferentes.</strong> "Instagram" e "instagram" viram origens diferentes pro GA4. Por isso o gerador usa lista fixa em vez de texto livre pro canal e pro posicionamento.
     </div>
   </section>
 
@@ -525,8 +530,33 @@ const CANAIS = {
   instagram: { nome: 'Instagram', medium: 'social', icon: '📸', secao: 'instagram' },
   whatsapp:  { nome: 'WhatsApp',  medium: 'social', icon: '💬', secao: 'whatsapp' },
   tiktok:    { nome: 'TikTok',    medium: 'social', icon: '🎵', secao: 'tiktok' },
-  youtube:   { nome: 'YouTube',   medium: 'social', icon: '▶️', secao: 'youtube' },
-  linkbio:   { nome: 'Link na Bio', medium: 'bio',  icon: '🔗', secao: 'linkbio' }
+  youtube:   { nome: 'YouTube',   medium: 'social', icon: '▶️', secao: 'youtube' }
+};
+
+// Onde dentro de cada canal o link vai ficar.
+// pontual: true  -> tem uma ação específica (story de hoje, vídeo de tal data), pede utm_campaign próprio
+// pontual: false -> é o link fixo do perfil/canal, não muda toda hora, não pede "ação"
+const POSICIONAMENTOS = {
+  instagram: [
+    { key: 'post',    label: 'Post / Reels',        pontual: true },
+    { key: 'story',   label: 'Story',                pontual: true },
+    { key: 'direct',  label: 'Direct / Mensagem',    pontual: true },
+    { key: 'bio',     label: 'Link na Bio (fixo)',   pontual: false }
+  ],
+  tiktok: [
+    { key: 'video',   label: 'Vídeo',                pontual: true },
+    { key: 'bio',     label: 'Link na Bio (fixo)',   pontual: false }
+  ],
+  youtube: [
+    { key: 'descricao',  label: 'Descrição do vídeo',        pontual: true },
+    { key: 'comunidade', label: 'Post de Comunidade',        pontual: true },
+    { key: 'bio',        label: 'Sobre o canal (link fixo)', pontual: false }
+  ],
+  whatsapp: [
+    { key: 'status',      label: 'Status',            pontual: true },
+    { key: 'grupo',       label: 'Grupo',              pontual: true },
+    { key: 'atendimento', label: 'Atendimento direto', pontual: true }
+  ]
 };
 
 // ⚠️ CONFIGURAR: troque pela URL e chave do projeto Supabase da Suppremo Sono
@@ -583,19 +613,34 @@ function selecionarCanal(key) {
   canalSelecionado = key;
   Object.keys(CANAIS).forEach(k => document.getElementById('opt-canal-' + k).classList.toggle('selected', k === key));
   document.getElementById('bloco-produto').style.display = 'block';
+  montarPosicionamentoSelect(key);
   atualizarWizard();
+}
+
+function montarPosicionamentoSelect(canalKey) {
+  const select = document.getElementById('s-posicionamento');
+  select.innerHTML = '<option value="">Escolha...</option>';
+  (POSICIONAMENTOS[canalKey] || []).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.key;
+    opt.textContent = p.label;
+    select.appendChild(opt);
+  });
 }
 
 function atualizarWizard() {
   const produto = document.getElementById('s-produto').value;
+  const blocoPos = document.getElementById('bloco-posicionamento');
   const blocoAcao = document.getElementById('bloco-acao');
   const blocoNome = document.getElementById('bloco-nome');
   const blocoPreview = document.getElementById('bloco-preview');
   const hint = document.getElementById('produto-url-hint');
+  const posHint = document.getElementById('posicionamento-hint');
 
   if (!canalSelecionado) return;
 
   if (!produto) {
+    blocoPos.style.display = 'none';
     blocoAcao.style.display = 'none';
     blocoNome.style.display = 'none';
     blocoPreview.style.display = 'none';
@@ -604,13 +649,31 @@ function atualizarWizard() {
   }
 
   hint.textContent = '→ ' + PRODUTOS[produto].url;
-  blocoAcao.style.display = 'block';
+  blocoPos.style.display = 'block';
 
-  const acao = document.getElementById('s-acao').value.trim();
-  if (!acao) {
+  const posKey = document.getElementById('s-posicionamento').value;
+  const posConfig = (POSICIONAMENTOS[canalSelecionado] || []).find(p => p.key === posKey);
+
+  if (!posConfig) {
+    blocoAcao.style.display = 'none';
     blocoNome.style.display = 'none';
     blocoPreview.style.display = 'none';
+    posHint.textContent = '';
     return;
+  }
+
+  if (posConfig.pontual) {
+    posHint.textContent = '';
+    blocoAcao.style.display = 'block';
+    const acao = document.getElementById('s-acao').value.trim();
+    if (!acao) {
+      blocoNome.style.display = 'none';
+      blocoPreview.style.display = 'none';
+      return;
+    }
+  } else {
+    posHint.textContent = 'Link fixo, não muda toda hora. Por isso não pede uma "ação" específica.';
+    blocoAcao.style.display = 'none';
   }
 
   blocoNome.style.display = 'block';
@@ -627,18 +690,25 @@ function atualizarWizard() {
 
 function montarLink() {
   const produto = document.getElementById('s-produto').value;
-  const acao = document.getElementById('s-acao').value.trim();
+  const posKey = document.getElementById('s-posicionamento').value;
   const nome = document.getElementById('s-nome').value.trim();
-  if (!canalSelecionado || !produto || !acao || !nome) return null;
+  if (!canalSelecionado || !produto || !posKey || !nome) return null;
+
+  const posConfig = (POSICIONAMENTOS[canalSelecionado] || []).find(p => p.key === posKey);
+  if (!posConfig) return null;
+
+  const acao = document.getElementById('s-acao').value.trim();
+  if (posConfig.pontual && !acao) return null;
 
   const canal = CANAIS[canalSelecionado];
   const baseUrl = PRODUTOS[produto].url;
-  const campaign = normalizarUTM(produto + '_' + acao);
-  const content = normalizarUTM(nome);
+  const campaignAcao = posConfig.pontual ? normalizarUTM(acao) : 'perfil';
+  const campaign = normalizarUTM(produto) + '_' + campaignAcao;
+  const content = normalizarUTM(posConfig.key + '_' + nome);
 
   const url = `${baseUrl}?utm_source=${canalSelecionado}&utm_medium=${canal.medium}&utm_campaign=${campaign}&utm_content=${content}`;
 
-  return { url, canal, produto, campaign, content, secao: canal.secao, nomeDescritivo: nome };
+  return { url, canal, produto, campaign, content, secao: canal.secao, nomeDescritivo: nome, posicionamento: posConfig.label };
 }
 
 function gerarPreview() {
@@ -646,7 +716,7 @@ function gerarPreview() {
   if (!r) return;
   document.getElementById('s-output').textContent = r.url;
   document.getElementById('preview-explicacao').innerHTML =
-    `Link do produto <strong>${PRODUTOS[document.getElementById('s-produto').value].nome}</strong> pelo canal <strong>${r.canal.nome}</strong>.`;
+    `Link do produto <strong>${PRODUTOS[document.getElementById('s-produto').value].nome}</strong> pelo canal <strong>${r.canal.nome}</strong>, posicionamento <strong>${r.posicionamento}</strong>.`;
 }
 
 function testarLink() {
@@ -693,8 +763,10 @@ async function salvarSimples() {
   document.getElementById('s-acao').value = '';
   document.getElementById('s-nome').value = '';
   document.getElementById('s-produto').value = '';
+  document.getElementById('s-posicionamento').innerHTML = '<option value="">Escolha...</option>';
   canalSelecionado = null;
   Object.keys(CANAIS).forEach(k => document.getElementById('opt-canal-' + k).classList.remove('selected'));
+  document.getElementById('bloco-produto').style.display = 'none';
   atualizarWizard();
 }
 
