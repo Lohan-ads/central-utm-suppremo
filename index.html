@@ -174,8 +174,6 @@
   .section-title { font-family: var(--font-display); font-weight: 800; font-size: 27px; margin-bottom: 6px; color: var(--azul-escuro); letter-spacing: -0.3px; }
   .section-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 26px; max-width: 720px; line-height: 1.55; }
 
-  /* MODE TOGGLE removed — só modo simples */
-
   .form-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -197,7 +195,8 @@
     display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;
   }
 
-  .step-hint { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+  .step-hint { font-size: 12px; color: var(--text-muted); margin-top: 6px; word-break: break-all; }
+  .step-hint.erro { color: #C0392B; }
 
   .big-select, .big-input {
     width: 100%; padding: 13px 14px; border: 1.5px solid var(--border); border-radius: 10px;
@@ -205,6 +204,9 @@
   }
 
   .big-select:focus, .big-input:focus { border-color: var(--azul-acinza); outline: none; }
+
+  .sub-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .sub-fields label { font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 5px; }
 
   .option-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
 
@@ -234,6 +236,8 @@
     font-family: var(--font-body);
   }
   .btn svg { width: 15px; height: 15px; }
+  .btn-sm { padding: 7px 12px; font-size: 12.5px; }
+  .btn-sm svg { width: 13px; height: 13px; }
   .btn-primary { background: var(--verde-limao); color: var(--azul-escuro); }
   .btn-primary:hover { filter: brightness(0.95); }
   .btn-secondary { background: var(--azul-escuro); color: var(--white); }
@@ -241,6 +245,7 @@
   .btn-ghost { background: transparent; color: var(--azul-escuro); border: 1.5px solid var(--border); }
   .btn-ghost:hover { border-color: var(--azul-acinza); }
   .btn.copied { background: #4ADE80 !important; color: var(--azul-escuro) !important; }
+  .btn:disabled { opacity: 0.6; cursor: default; }
 
   .warning-box {
     background: #FFF8E1; border-left: 4px solid #E8B93A; padding: 14px 16px; border-radius: 8px;
@@ -253,15 +258,21 @@
     margin-top: 14px; font-size: 13px; color: var(--azul-escuro); line-height: 1.5;
   }
 
-  /* UTM CARD (links salvos) */
+  /* LISTA DE LINKS SALVOS */
+  .list-toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+  .list-toolbar .big-input { flex: 2; min-width: 220px; padding: 10px 12px; font-size: 13.5px; }
+  .list-toolbar .big-select { flex: 1; min-width: 180px; padding: 10px 12px; font-size: 13.5px; }
+  .list-count { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+
   .utm-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 10px; }
   .utm-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
-  .utm-name { display: flex; align-items: center; gap: 10px; }
+  .utm-name { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .utm-title { font-weight: 700; font-size: 14px; color: var(--text); }
   .badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.4px; background: var(--azul-claro); color: var(--azul-escuro); }
+  .badge.pos { background: #EEF7E0; color: #3D5A12; }
   .utm-url { background: #F6F8F9; border: 1px solid var(--border); padding: 10px 12px; border-radius: 6px; font-family: monospace; font-size: 11.5px; word-break: break-all; color: var(--text-muted); }
+  .utm-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
   .utm-meta { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
-  .delete-btn { background: none; border: none; color: #C0392B; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
 
   /* DOC TABLE */
   table.doc-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
@@ -278,14 +289,15 @@
   .toast {
     position: fixed; bottom: 30px; right: 30px; background: var(--azul-escuro); color: var(--white);
     padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    z-index: 1000; opacity: 0; transform: translateY(20px); transition: all 0.3s ease;
+    z-index: 1000; opacity: 0; transform: translateY(20px); transition: all 0.3s ease; pointer-events: none;
   }
   .toast.show { opacity: 1; transform: translateY(0); }
 
   @media (max-width: 900px) {
     body { flex-direction: column; }
     #sidebar { width: 100%; min-width: 100%; height: auto; position: relative; }
-    #main { max-width: 100%; padding: 20px; }
+    #main { max-width: 100%; padding: 20px 16px; }
+    .sub-fields { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -308,16 +320,16 @@
   </a>
 
   <div class="nav-group-label">Links salvos</div>
-  <a class="nav-item" onclick="showSection('instagram', this)">
+  <a class="nav-item" data-secao="instagram" onclick="showSection('instagram', this)">
     <span class="icon">📸</span><span class="label">Instagram</span><span class="nav-count">0</span>
   </a>
-  <a class="nav-item" onclick="showSection('whatsapp', this)">
+  <a class="nav-item" data-secao="whatsapp" onclick="showSection('whatsapp', this)">
     <span class="icon">💬</span><span class="label">WhatsApp</span><span class="nav-count">0</span>
   </a>
-  <a class="nav-item" onclick="showSection('tiktok', this)">
+  <a class="nav-item" data-secao="tiktok" onclick="showSection('tiktok', this)">
     <span class="icon">🎵</span><span class="label">TikTok</span><span class="nav-count">0</span>
   </a>
-  <a class="nav-item" onclick="showSection('youtube', this)">
+  <a class="nav-item" data-secao="youtube" onclick="showSection('youtube', this)">
     <span class="icon">▶️</span><span class="label">YouTube</span><span class="nav-count">0</span>
   </a>
 
@@ -356,6 +368,20 @@
           <option value="">Escolha o produto...</option>
         </select>
         <div class="step-hint" id="produto-url-hint"></div>
+
+        <div id="bloco-produto-outro" style="display:none;">
+          <div class="sub-fields">
+            <div>
+              <label for="s-outro-url">Link da página no site</label>
+              <input type="url" id="s-outro-url" class="big-input" placeholder="https://suppremosono.com.br/produtos/..." oninput="atualizarWizard()">
+            </div>
+            <div>
+              <label for="s-outro-nome">Nome curto do produto</label>
+              <input type="text" id="s-outro-nome" class="big-input" placeholder="Ex: Kit Plus + travesseiro" oninput="atualizarWizard()">
+            </div>
+          </div>
+          <div class="step-hint" id="outro-hint">Use pra produtos que ainda não estão na lista (como os kits novos). O nome curto entra no utm_campaign.</div>
+        </div>
       </div>
 
       <div class="step-block" id="bloco-posicionamento" style="display:none;">
@@ -375,6 +401,12 @@
       <div class="step-block" id="bloco-nome" style="display:none;">
         <div class="step-label"><span class="step-num">5</span> Nome pra identificar essa UTM no painel</div>
         <input type="text" id="s-nome" class="big-input" placeholder="Ex: Story Duo oferta - 20/07" oninput="atualizarWizard()">
+        <div class="sub-fields" style="grid-template-columns: 1fr;">
+          <div>
+            <label for="s-autor">Quem está criando? (fica lembrado nesse navegador)</label>
+            <input type="text" id="s-autor" class="big-input" placeholder="Seu nome" oninput="lembrarAutor()">
+          </div>
+        </div>
       </div>
 
       <div class="step-block" id="bloco-preview" style="display:none;">
@@ -413,6 +445,11 @@
     <div class="topbar"><span class="topbar-pill">📸 Instagram</span></div>
     <div class="section-title">Instagram — Links salvos</div>
     <p class="section-desc">UTMs geradas pro Instagram orgânico, de qualquer posicionamento (post/reels, story, link na bio, direct).</p>
+    <div class="list-toolbar">
+      <input type="search" class="big-input" id="busca-instagram" placeholder="Buscar por nome ou link..." oninput="renderCards('instagram')">
+      <select class="big-select" id="filtro-instagram" onchange="renderCards('instagram')"></select>
+    </div>
+    <div class="list-count" id="count-instagram"></div>
     <div id="cards-instagram"></div>
   </section>
 
@@ -420,6 +457,11 @@
     <div class="topbar"><span class="topbar-pill">💬 WhatsApp</span></div>
     <div class="section-title">WhatsApp — Links salvos</div>
     <p class="section-desc">UTMs geradas pra links compartilhados via WhatsApp (grupos, status, atendimento).</p>
+    <div class="list-toolbar">
+      <input type="search" class="big-input" id="busca-whatsapp" placeholder="Buscar por nome ou link..." oninput="renderCards('whatsapp')">
+      <select class="big-select" id="filtro-whatsapp" onchange="renderCards('whatsapp')"></select>
+    </div>
+    <div class="list-count" id="count-whatsapp"></div>
     <div id="cards-whatsapp"></div>
   </section>
 
@@ -427,6 +469,11 @@
     <div class="topbar"><span class="topbar-pill">🎵 TikTok</span></div>
     <div class="section-title">TikTok — Links salvos</div>
     <p class="section-desc">UTMs geradas pro TikTok, de qualquer posicionamento (vídeo, link na bio).</p>
+    <div class="list-toolbar">
+      <input type="search" class="big-input" id="busca-tiktok" placeholder="Buscar por nome ou link..." oninput="renderCards('tiktok')">
+      <select class="big-select" id="filtro-tiktok" onchange="renderCards('tiktok')"></select>
+    </div>
+    <div class="list-count" id="count-tiktok"></div>
     <div id="cards-tiktok"></div>
   </section>
 
@@ -434,6 +481,11 @@
     <div class="topbar"><span class="topbar-pill">▶️ YouTube</span></div>
     <div class="section-title">YouTube — Links salvos</div>
     <p class="section-desc">UTMs geradas pra descrição de vídeos e comunidade do YouTube.</p>
+    <div class="list-toolbar">
+      <input type="search" class="big-input" id="busca-youtube" placeholder="Buscar por nome ou link..." oninput="renderCards('youtube')">
+      <select class="big-select" id="filtro-youtube" onchange="renderCards('youtube')"></select>
+    </div>
+    <div class="list-count" id="count-youtube"></div>
     <div id="cards-youtube"></div>
   </section>
 
@@ -505,6 +557,10 @@
       <strong>Por que "Link na Bio" não pede uma ação:</strong> ao contrário de um story ou um vídeo, que promovem algo pontual, o link fixo do perfil normalmente não muda todo dia. Por isso, pra esses posicionamentos, o gerador pula a pergunta de "ação" e usa <code class="inline">perfil</code> automaticamente no utm_campaign.
     </div>
 
+    <div class="info-box">
+      <strong>Produto que ainda não está na lista:</strong> escolha "Outro produto (colar link)" no passo 2, cole o link da página do site e dê um nome curto. Esse nome curto vira o começo do utm_campaign, então use sempre o mesmo nome pro mesmo produto.
+    </div>
+
     <div class="warning-box">
       <strong>Nunca digite o canal de duas formas diferentes.</strong> "Instagram" e "instagram" viram origens diferentes pro GA4. Por isso o gerador usa lista fixa em vez de texto livre pro canal e pro posicionamento.
     </div>
@@ -512,18 +568,77 @@
 
 </main>
 
+
 <div id="toast" class="toast"></div>
 
 <script>
 // ===== CONFIGURAÇÃO =====
 
+const SITE = 'https://suppremosono.com.br/';
+const P = slug => SITE + 'produtos/' + slug + '/';
+
+// A chave de cada produto vira o começo do utm_campaign (ex: "pro_story_oferta").
+// As chaves antigas (pro, duo, plus, basic, sofa, geral) foram mantidas de propósito,
+// pra não quebrar a comparação com as campanhas que já rodaram.
 const PRODUTOS = {
-  pro:   { nome: 'Pro',        url: 'https://suppremosono.com.br/produtos/colchao-pro-d33-tecnologia-adapt-100-espuma-alto-21cm/' },
-  duo:   { nome: 'Duo',        url: 'https://suppremosono.com.br/produtos/colchao-duo-d33-dupla-camada-de-conforto-100-espuma-16cm/' },
-  plus:  { nome: 'Plus',       url: 'https://suppremosono.com.br/produtos/colchao-plus-d33-bordado-100-espuma-premium-dupla-face-17cm/' },
-  basic: { nome: 'Basic',      url: 'https://suppremosono.com.br/produtos/colchao-basic-d33-ortopedico-firme-100-espuma-12cm/' },
-  sofa:  { nome: 'Sofá-cama',  url: 'https://suppremosono.com.br/produtos/sofa-cama-casal-modular-2-em-1-na-caixa-188m-grande-espacoso-boucle-premium/' },
-  geral: { nome: 'Geral (home, sem produto específico)', url: 'https://suppremosono.com.br/' }
+  // Colchões
+  pro:       { grupo: 'Colchões', nome: 'Pro D33 (ADAPT 21cm)',            url: P('colchao-pro-d33-tecnologia-adapt-100-espuma-alto-21cm') },
+  plus:      { grupo: 'Colchões', nome: 'Plus D33 (Bordado Dupla Face 17cm)', url: P('colchao-plus-d33-bordado-100-espuma-premium-dupla-face-17cm') },
+  duo:       { grupo: 'Colchões', nome: 'Duo D33 (Dupla Camada 16cm)',     url: P('colchao-duo-d33-dupla-camada-de-conforto-100-espuma-16cm') },
+  ice:       { grupo: 'Colchões', nome: 'ICE Adapt 26cm',                   url: P('colchao-suppremo-sono-ice-adapt-26cm-viscoelastico-tecido-gelado-com-bloqueio-de-movimento-solteiro-casal-queen-king') },
+  basic:     { grupo: 'Colchões', nome: 'Basic D33 (12cm)',                 url: P('colchao-basic-d33-ortopedico-firme-100-espuma-12cm') },
+  prime:     { grupo: 'Colchões', nome: 'Prime D33 (Pillow Top 24cm)',      url: P('colchao-d33-prime-100-espuma-com-pillow-top-alto-24c-bordado-conforto-premium-casal-solteiro-queen') },
+  class:     { grupo: 'Colchões', nome: 'Class D33 (Dupla Face 17cm)',      url: P('colchao-class-d33-preto-bordado-dupla-face-premium-17cm') },
+  max:       { grupo: 'Colchões', nome: 'Max D40 (Dupla Face 17cm)',        url: P('colchao-max-d40-100-espuma-bordado-dupla-face-17cm') },
+  soft:      { grupo: 'Colchões', nome: 'Soft 22cm (Dupla Camada)',         url: P('colchao-soft-1aub9') },
+  essencial: { grupo: 'Colchões', nome: 'Essencial D33 (12cm)',             url: P('colchao-essencial-d33-ortopedico-firme-nao-afunda-12cm') },
+  d23:       { grupo: 'Colchões', nome: 'Espuma D23 Macio (14cm)',          url: P('colchao-espuma-d23-macio-14cm-100-espuma-malha-confortavel-duravel-acabamento-premium-suppremo-sono-uvekv') },
+
+  // Duo a vácuo (cada tamanho tem uma página própria no site)
+  duo_vacuo_solteiro:      { grupo: 'Colchões Duo a vácuo', nome: 'Duo a vácuo Solteiro',      url: P('colchao-solteiro-d33-duo-firme-vacuo-ortopedico-100-espuma-preto-1pp55') },
+  duo_vacuo_solteiro_king: { grupo: 'Colchões Duo a vácuo', nome: 'Duo a vácuo Solteiro King', url: P('colchao-solteiro-king-d33-duo-firme-a-vacuo-ortopedico-100-espuma-17fhp') },
+  duo_vacuo_viuva:         { grupo: 'Colchões Duo a vácuo', nome: 'Duo a vácuo Viúva',         url: P('colchao-viuva-d33-duo-firme-a-vacuo-ortopedico-100-espuma-bisjc') },
+  duo_vacuo_casal:         { grupo: 'Colchões Duo a vácuo', nome: 'Duo a vácuo Casal',         url: P('colchao-casal-d33-duo-firme-a-vacuo-ortopedico-100-espuma-1nw0i') },
+  duo_vacuo_queen:         { grupo: 'Colchões Duo a vácuo', nome: 'Duo a vácuo Queen',         url: P('colchao-queen-d33-duo-firme-a-vacuo-ortopedico-100-espuma-1w468') },
+  duo_vacuo_king:          { grupo: 'Colchões Duo a vácuo', nome: 'Duo a vácuo King',          url: P('colchao-king-d33-duo-firme-a-vacuo-ortopedico-100-espuma-qp9x8') },
+
+  // Kits
+  kit_box_pro:          { grupo: 'Kits', nome: 'Kit Cama Box + Colchão Pro',       url: P('kit-cama-box-colchao-d33-pro-adapt-firme-ortopedico') },
+  kit_box_duo:          { grupo: 'Kits', nome: 'Kit Cama Box + Colchão Duo',       url: P('kit-cama-box-colchao-duo-d33-firme-ortopedico-suppremo-sono') },
+  kit_4_trav_magnetico: { grupo: 'Kits', nome: 'Kit 4 Travesseiros Magnéticos',    url: P('kit-4-travesseiros-magnetico-alto-fibra-siliconada-infravermelho-anti-ronco') },
+
+  // Travesseiros
+  comfort_neck:            { grupo: 'Travesseiros', nome: 'Comfort Neck',                       url: P('travesseiro-comfort-neck') },
+  soft_touch_plus:         { grupo: 'Travesseiros', nome: 'Soft Touch Plus',                    url: P('travesseiro-ortopedico-macio-soft-touch-plus-confortavel-ortopedico-suppremo-sono-8t4bj') },
+  gel_skin_ice:            { grupo: 'Travesseiros', nome: 'Gel Skin Ice',                       url: P('travesseiro-gel-skin-ice') },
+  trav_magnetico:          { grupo: 'Travesseiros', nome: 'Magnético Alto (Fibra Siliconada)',  url: P('travesseiro-magnetico-alto-em-fibra-siliconada') },
+  trav_cervical_magnetico: { grupo: 'Travesseiros', nome: 'Cervical Magnético',                 url: P('travesseiro-cervical-magnetico') },
+  trav_borboleta:          { grupo: 'Travesseiros', nome: 'Cervical Borboleta',                 url: P('travesseiro-cervical-ergonomico-borboleta-anatomico-espuma-viscoelastica-alto-conforto-premium-1txbi') },
+  trav_cervical_hr:        { grupo: 'Travesseiros', nome: 'Cervical HR',                        url: P('travesseiro-cervical-hr-anatomico-espuma-alta-densidade-capa-com-ziper-removivel-h9aqf') },
+  trav_nasa_cervical:      { grupo: 'Travesseiros', nome: 'NASA Cervical Anatômico',            url: P('travesseiro-nasa-cervical-anatomico-comfort') },
+  trav_nasa_ergonomico:    { grupo: 'Travesseiros', nome: 'NASA Ergonômico com Zíper',          url: P('travesseiro-nasa-ergonomico-cervical-com-ziper') },
+  trav_nasa_sabonete:      { grupo: 'Travesseiros', nome: 'NASA Sabonete',                      url: P('travesseiro-nasa-sabonete-viscoelastico-ortopedico') },
+  trav_xuxao:              { grupo: 'Travesseiros', nome: 'Xuxão Body Pillow (Corpo)',          url: P('travesseiro-de-corpo-xuxao-body-pillow') },
+  trav_rampa:              { grupo: 'Travesseiros', nome: 'Rampa Anti-Refluxo',                 url: P('travesseiro-rampa-anti-refluxo') },
+  trav_encosto_triangular: { grupo: 'Travesseiros', nome: 'Encosto Triangular',                 url: P('encosto-triangular-anatomico-pos-operatorio-multiuso') },
+
+  // Pillow Top
+  pillowtop_d33:  { grupo: 'Pillow Top', nome: 'Pillow Top D33 Extrasoft 4cm', url: P('pillow-top-de-espuma-d33-extrasoft-4cm-com-ziper') },
+  pillowtop_nasa: { grupo: 'Pillow Top', nome: 'Pillow Top NASA 4cm',          url: P('pillow-top-nasa-viscoelastico-4cm') },
+
+  // Sofá-cama e móveis
+  sofa:               { grupo: 'Sofá-cama e móveis', nome: 'Sofá-cama Bouclé',          url: P('sofa-cama-casal-modular-2-em-1-na-caixa-188m-grande-espacoso-boucle-premium') },
+  sofa_boucle_azul:   { grupo: 'Sofá-cama e móveis', nome: 'Sofá-cama Bouclé Azul',     url: P('sofa-cama-casal-modular-2-em-1-na-caixa-188m-grande-espacoso-boucle-premium-azul-1g55u') },
+  sofa_boucle_bege:   { grupo: 'Sofá-cama e móveis', nome: 'Sofá-cama Bouclé Bege',     url: P('sofa-cama-casal-modular-2-em-1-na-caixa-188m-grande-espacoso-boucle-premium-bege-1lex6') },
+  sofa_boucle_cinza:  { grupo: 'Sofá-cama e móveis', nome: 'Sofá-cama Bouclé Cinza',    url: P('sofa-cama-casal-modular-2-em-1-na-caixa-188m-grande-espacoso-boucle-premium-cinza-12h6l') },
+  sofa_boucle_marrom: { grupo: 'Sofá-cama e móveis', nome: 'Sofá-cama Bouclé Marrom',   url: P('sofa-cama-casal-modular-2-em-1-na-caixa-188m-grande-espacoso-boucle-premium-marrom-182ge') },
+  sofa_cotele:        { grupo: 'Sofá-cama e móveis', nome: 'Sofá-cama Cotelê (a vácuo)', url: P('sofa-cama-casal-modular-2-em-1-a-vacuo-caixa-188m-tecido-cotele-premium') },
+  montessoriana:      { grupo: 'Sofá-cama e móveis', nome: 'Cama Montessoriana Infantil', url: P('cama-montessoriana-infantil-com-colchao-solteiro-100-espuma-e-protecao-lateral-em-tecido-boucle-e3bch') },
+
+  // Outros
+  melatonina: { grupo: 'Outros', nome: 'Melatonina Yume Gummy', url: P('melatonina-yume-gummy-suppremo-sono') },
+  geral:      { grupo: 'Outros', nome: 'Geral (home, sem produto específico)', url: SITE },
+  outro:      { grupo: 'Outros', nome: 'Outro produto (colar link)', url: null }
 };
 
 const CANAIS = {
@@ -559,32 +674,72 @@ const POSICIONAMENTOS = {
   ]
 };
 
-// ⚠️ CONFIGURAR: troque pela URL e chave do projeto Supabase da Suppremo Sono
-// (o painel funciona pra gerar e copiar link mesmo sem isso configurado —
-//  só o salvamento compartilhado no painel fica desativado até configurar)
 const SUPABASE_URL = 'https://pmazsaanwwlmvbaumwhc.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtYXpzYWFud3dsbXZiYXVtd2hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NjUwODcsImV4cCI6MjEwMTU0MTA4N30.UZe4GpmwnRPi5Y_UvlvCpNsGhSP2nsjmcqCUOHEUbeM';
 const TABELA = 'suppremo_utms_custom';
 
 let supabaseClient = null;
 let supabaseConfigurado = SUPABASE_URL.startsWith('http') && SUPABASE_KEY.length > 20;
-if (supabaseConfigurado) {
+if (supabaseConfigurado && window.supabase) {
   supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+} else {
+  supabaseConfigurado = false;
 }
 
-let utmsCustom = {};
+let utmsCustom = {};     // secao -> [itens]
+let utmPorId = {};       // id -> item
 let dbConectado = false;
 let canalSelecionado = null;
 
 // ===== UTIL =====
 
 function normalizarUTM(texto) {
-  return texto
+  return String(texto || '')
     .toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9\s_]/g, '')
     .trim()
-    .replace(/\s+/g, '_');
+    .replace(/\s+/g, '_')
+    .replace(/_+/g, '_');
+}
+
+// Escapa texto antes de colocar no HTML (nome com < ou " não quebra mais o card)
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// Deixa uma URL comparável: https, sem query/hash, sempre terminando em /
+function urlBase(url) {
+  let u = String(url || '').trim().split('#')[0].split('?')[0];
+  u = u.replace(/^http:\/\//i, 'https://').replace(/^https:\/\/www\./i, 'https://');
+  if (!u.endsWith('/')) u += '/';
+  return u.toLowerCase();
+}
+
+// Descobre o produto de um link salvo (serve pros links antigos, que não guardavam o produto)
+const MAPA_URL_PRODUTO = {};
+Object.entries(PRODUTOS).forEach(([k, p]) => { if (p.url) MAPA_URL_PRODUTO[urlBase(p.url)] = k; });
+
+function detectarProduto(url) {
+  return MAPA_URL_PRODUTO[urlBase(url)] || null;
+}
+
+function nomeProduto(chave) {
+  if (!chave) return null;
+  if (PRODUTOS[chave]) return PRODUTOS[chave].nome;
+  return chave.replace(/_/g, ' ');
+}
+
+function labelPosicionamento(secao, key) {
+  const p = (POSICIONAMENTOS[secao] || []).find(x => x.key === key);
+  return p ? p.label : key;
+}
+
+function lerAutor() {
+  try { return localStorage.getItem('utm_autor') || ''; } catch (e) { return ''; }
+}
+function lembrarAutor() {
+  try { localStorage.setItem('utm_autor', document.getElementById('s-autor').value.trim()); } catch (e) {}
 }
 
 // ===== MONTAGEM DO WIZARD =====
@@ -601,11 +756,17 @@ function montarCanalCards() {
 
 function montarProdutoSelect() {
   const select = document.getElementById('s-produto');
+  const grupos = {};
   Object.entries(PRODUTOS).forEach(([key, p]) => {
+    if (!grupos[p.grupo]) {
+      grupos[p.grupo] = document.createElement('optgroup');
+      grupos[p.grupo].label = p.grupo;
+      select.appendChild(grupos[p.grupo]);
+    }
     const opt = document.createElement('option');
     opt.value = key;
     opt.textContent = p.nome;
-    select.appendChild(opt);
+    grupos[p.grupo].appendChild(opt);
   });
 }
 
@@ -628,8 +789,35 @@ function montarPosicionamentoSelect(canalKey) {
   });
 }
 
+// Retorna { chave, nome, url } do produto escolhido, ou null se ainda está incompleto.
+function getProdutoInfo() {
+  const chave = document.getElementById('s-produto').value;
+  if (!chave) return null;
+  if (chave !== 'outro') return { chave, nome: PRODUTOS[chave].nome, url: PRODUTOS[chave].url };
+
+  const urlDigitada = document.getElementById('s-outro-url').value.trim();
+  const nomeCurto = document.getElementById('s-outro-nome').value.trim();
+  const hint = document.getElementById('outro-hint');
+
+  if (urlDigitada && !/^https?:\/\/(www\.)?suppremosono\.com\.br(\/|$)/i.test(urlDigitada)) {
+    hint.textContent = 'Esse link precisa ser do site suppremosono.com.br.';
+    hint.classList.add('erro');
+    return null;
+  }
+  hint.textContent = 'Use pra produtos que ainda não estão na lista (como os kits novos). O nome curto entra no utm_campaign.';
+  hint.classList.remove('erro');
+
+  const slug = normalizarUTM(nomeCurto);
+  if (!urlDigitada || !slug) return null;
+
+  // remove UTMs/parâmetros que já vieram colados no link
+  let base = urlDigitada.split('#')[0].split('?')[0].replace(/^http:\/\//i, 'https://');
+  return { chave: slug, nome: nomeCurto, url: base };
+}
+
 function atualizarWizard() {
-  const produto = document.getElementById('s-produto').value;
+  const produtoSel = document.getElementById('s-produto').value;
+  const blocoOutro = document.getElementById('bloco-produto-outro');
   const blocoPos = document.getElementById('bloco-posicionamento');
   const blocoAcao = document.getElementById('bloco-acao');
   const blocoNome = document.getElementById('bloco-nome');
@@ -637,27 +825,27 @@ function atualizarWizard() {
   const hint = document.getElementById('produto-url-hint');
   const posHint = document.getElementById('posicionamento-hint');
 
+  const esconderDepois = (...blocos) => blocos.forEach(b => b.style.display = 'none');
+
   if (!canalSelecionado) return;
 
-  if (!produto) {
-    blocoPos.style.display = 'none';
-    blocoAcao.style.display = 'none';
-    blocoNome.style.display = 'none';
-    blocoPreview.style.display = 'none';
+  blocoOutro.style.display = produtoSel === 'outro' ? 'block' : 'none';
+
+  const info = getProdutoInfo();
+  if (!info) {
+    esconderDepois(blocoPos, blocoAcao, blocoNome, blocoPreview);
     hint.textContent = '';
     return;
   }
 
-  hint.textContent = '→ ' + PRODUTOS[produto].url;
+  hint.textContent = produtoSel === 'outro' ? '' : '→ ' + info.url;
   blocoPos.style.display = 'block';
 
   const posKey = document.getElementById('s-posicionamento').value;
   const posConfig = (POSICIONAMENTOS[canalSelecionado] || []).find(p => p.key === posKey);
 
   if (!posConfig) {
-    blocoAcao.style.display = 'none';
-    blocoNome.style.display = 'none';
-    blocoPreview.style.display = 'none';
+    esconderDepois(blocoAcao, blocoNome, blocoPreview);
     posHint.textContent = '';
     return;
   }
@@ -666,9 +854,8 @@ function atualizarWizard() {
     posHint.textContent = '';
     blocoAcao.style.display = 'block';
     const acao = document.getElementById('s-acao').value.trim();
-    if (!acao) {
-      blocoNome.style.display = 'none';
-      blocoPreview.style.display = 'none';
+    if (!normalizarUTM(acao)) {
+      esconderDepois(blocoNome, blocoPreview);
       return;
     }
   } else {
@@ -679,7 +866,7 @@ function atualizarWizard() {
   blocoNome.style.display = 'block';
 
   const nome = document.getElementById('s-nome').value.trim();
-  if (!nome) {
+  if (!normalizarUTM(nome)) {
     blocoPreview.style.display = 'none';
     return;
   }
@@ -689,26 +876,39 @@ function atualizarWizard() {
 }
 
 function montarLink() {
-  const produto = document.getElementById('s-produto').value;
+  const info = getProdutoInfo();
   const posKey = document.getElementById('s-posicionamento').value;
   const nome = document.getElementById('s-nome').value.trim();
-  if (!canalSelecionado || !produto || !posKey || !nome) return null;
+  if (!canalSelecionado || !info || !posKey || !normalizarUTM(nome)) return null;
 
   const posConfig = (POSICIONAMENTOS[canalSelecionado] || []).find(p => p.key === posKey);
   if (!posConfig) return null;
 
   const acao = document.getElementById('s-acao').value.trim();
-  if (posConfig.pontual && !acao) return null;
+  if (posConfig.pontual && !normalizarUTM(acao)) return null;
 
   const canal = CANAIS[canalSelecionado];
-  const baseUrl = PRODUTOS[produto].url;
   const campaignAcao = posConfig.pontual ? normalizarUTM(acao) : 'perfil';
-  const campaign = normalizarUTM(produto) + '_' + campaignAcao;
+  const campaign = normalizarUTM(info.chave) + '_' + campaignAcao;
   const content = normalizarUTM(posConfig.key + '_' + nome);
 
-  const url = `${baseUrl}?utm_source=${canalSelecionado}&utm_medium=${canal.medium}&utm_campaign=${campaign}&utm_content=${content}`;
+  const params = new URLSearchParams({
+    utm_source: canalSelecionado,
+    utm_medium: canal.medium,
+    utm_campaign: campaign,
+    utm_content: content
+  });
+  const url = `${info.url}?${params.toString()}`;
 
-  return { url, canal, produto, campaign, content, secao: canal.secao, nomeDescritivo: nome, posicionamento: posConfig.label };
+  return {
+    url, canal, campaign, content,
+    secao: canal.secao,
+    nomeDescritivo: nome,
+    produtoChave: info.chave,
+    produtoNome: info.nome,
+    posicionamentoKey: posConfig.key,
+    posicionamento: posConfig.label
+  };
 }
 
 function gerarPreview() {
@@ -716,20 +916,30 @@ function gerarPreview() {
   if (!r) return;
   document.getElementById('s-output').textContent = r.url;
   document.getElementById('preview-explicacao').innerHTML =
-    `Link do produto <strong>${PRODUTOS[document.getElementById('s-produto').value].nome}</strong> pelo canal <strong>${r.canal.nome}</strong>, posicionamento <strong>${r.posicionamento}</strong>.`;
+    `Link do produto <strong>${esc(r.produtoNome)}</strong> pelo canal <strong>${esc(r.canal.nome)}</strong>, posicionamento <strong>${esc(r.posicionamento)}</strong>.`;
 }
 
 function testarLink() {
   const r = montarLink();
   if (!r) return;
-  window.open(r.url, '_blank');
+  window.open(r.url, '_blank', 'noopener');
+}
+
+function copiar(texto) {
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(texto);
+  // fallback pra navegadores sem clipboard API
+  const ta = document.createElement('textarea');
+  ta.value = texto; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); } finally { ta.remove(); }
+  return Promise.resolve();
 }
 
 function copySimples() {
   const r = montarLink();
   if (!r) return;
   const btn = document.getElementById('s-copy-btn');
-  navigator.clipboard.writeText(r.url).then(() => marcarCopiado(btn, 'Copiado!'));
+  copiar(r.url).then(() => marcarCopiado(btn, 'Copiado!'));
 }
 
 async function salvarSimples() {
@@ -737,17 +947,32 @@ async function salvarSimples() {
   if (!r) return;
 
   if (!supabaseConfigurado) {
-    navigator.clipboard.writeText(r.url);
+    copiar(r.url);
     showToast('⚠️ Banco ainda não configurado — link copiado, mas não foi salvo no painel');
     return;
   }
+
+  // avisa se já existe exatamente o mesmo link salvo
+  const duplicado = (utmsCustom[r.secao] || []).find(i => i.url === r.url);
+  if (duplicado && !confirm(`Já existe uma UTM igual salva como "${duplicado.nome}". Salvar mesmo assim?`)) return;
 
   const btn = document.getElementById('s-save-btn');
   const original = btn.innerHTML;
   btn.innerHTML = 'Salvando...';
   btn.disabled = true;
 
-  const salvo = await salvarCustomBanco(r.secao, r.nomeDescritivo, r.url);
+  const linha = {
+    secao: r.secao,
+    nome: r.nomeDescritivo,
+    url: r.url,
+    produto: r.produtoChave,
+    posicionamento: r.posicionamentoKey,
+    campanha: r.campaign,
+    conteudo: r.content,
+    criado_por: document.getElementById('s-autor').value.trim() || null
+  };
+
+  const salvo = await salvarCustomBanco(linha);
   btn.disabled = false;
 
   if (!salvo) { btn.innerHTML = original; return; }
@@ -755,26 +980,31 @@ async function salvarSimples() {
   await carregarCustom();
   renderAll();
 
-  navigator.clipboard.writeText(r.url).then(() => {
+  copiar(r.url).then(() => {
     marcarCopiado(btn, 'Salvo e copiado!', original);
-    showToast('✅ Salvo no painel pra toda a equipe');
+    showToast(salvo.semExtras
+      ? '✅ Salvo e copiado (rode o SQL novo pra guardar produto e autor)'
+      : '✅ Salvo no painel pra toda a equipe');
   });
 
-  document.getElementById('s-acao').value = '';
-  document.getElementById('s-nome').value = '';
+  limparWizard();
+}
+
+function limparWizard() {
+  ['s-acao', 's-nome', 's-outro-url', 's-outro-nome'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('s-produto').value = '';
   document.getElementById('s-posicionamento').innerHTML = '<option value="">Escolha...</option>';
+  document.getElementById('bloco-produto-outro').style.display = 'none';
   canalSelecionado = null;
   Object.keys(CANAIS).forEach(k => document.getElementById('opt-canal-' + k).classList.remove('selected'));
-  document.getElementById('bloco-produto').style.display = 'none';
-  atualizarWizard();
+  ['bloco-produto', 'bloco-posicionamento', 'bloco-acao', 'bloco-nome', 'bloco-preview']
+    .forEach(id => document.getElementById(id).style.display = 'none');
 }
 
 function marcarCopiado(btn, texto, restaurarPara) {
   const original = restaurarPara || btn.innerHTML;
   btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> ' + texto;
   btn.classList.add('copied');
-  showToast();
   setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2200);
 }
 
@@ -782,10 +1012,17 @@ function showToast(msg = '✅ Link copiado!') {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
   toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2200);
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => toast.classList.remove('show'), 2800);
 }
 
 // ===== SUPABASE =====
+
+function formatarData(iso) {
+  const dt = new Date(iso);
+  if (isNaN(dt)) return '';
+  return `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
+}
 
 async function carregarCustom() {
   if (!supabaseConfigurado) { dbConectado = false; atualizarStatusConexao(); return; }
@@ -793,11 +1030,22 @@ async function carregarCustom() {
     const { data, error } = await supabaseClient.from(TABELA).select('*').order('created_at', { ascending: false });
     if (error) throw error;
     utmsCustom = {};
+    utmPorId = {};
     (data || []).forEach(row => {
       if (!utmsCustom[row.secao]) utmsCustom[row.secao] = [];
-      const dt = new Date(row.created_at);
-      const dateStr = `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
-      utmsCustom[row.secao].push({ id: row.id, nome: row.nome, url: row.url, createdAt: dateStr });
+      const item = {
+        id: row.id,
+        secao: row.secao,
+        nome: row.nome,
+        url: row.url,
+        createdAt: formatarData(row.created_at),
+        // links antigos não têm a coluna produto: descobre pela URL
+        produto: row.produto || detectarProduto(row.url),
+        posicionamento: row.posicionamento || null,
+        criadoPor: row.criado_por || null
+      };
+      utmsCustom[row.secao].push(item);
+      utmPorId[row.id] = item;
     });
     dbConectado = true;
   } catch (e) {
@@ -807,9 +1055,24 @@ async function carregarCustom() {
   atualizarStatusConexao();
 }
 
-async function salvarCustomBanco(secao, nome, url) {
+function erroDeColunaFaltando(error) {
+  const msg = (error && (error.message || '')) + ' ' + (error && error.code || '');
+  return /PGRST204|42703|column/i.test(msg);
+}
+
+async function salvarCustomBanco(linha) {
   try {
-    const { data, error } = await supabaseClient.from(TABELA).insert([{ secao, nome, url }]).select();
+    let { data, error } = await supabaseClient.from(TABELA).insert([linha]).select();
+
+    // Se o SQL das colunas novas ainda não foi rodado, salva só o básico (como antes)
+    if (error && erroDeColunaFaltando(error)) {
+      console.warn('Colunas novas ainda não existem no banco, salvando só o básico.', error);
+      ({ data, error } = await supabaseClient.from(TABELA)
+        .insert([{ secao: linha.secao, nome: linha.nome, url: linha.url }]).select());
+      if (error) throw error;
+      return { ...data[0], semExtras: true };
+    }
+
     if (error) throw error;
     return data[0];
   } catch (e) {
@@ -819,50 +1082,100 @@ async function salvarCustomBanco(secao, nome, url) {
   }
 }
 
-async function deletarUTM(id, secao) {
-  if (!confirm('Excluir essa UTM? Ela some pra todo mundo do painel.')) return;
-  try {
-    const { error } = await supabaseClient.from(TABELA).delete().eq('id', id);
-    if (error) throw error;
-    await carregarCustom();
-    renderAll();
-    showToast('🗑️ Removido pra todos');
-  } catch (e) {
-    alert('Não foi possível excluir. Tente novamente.');
-  }
+
+// ===== LISTAS =====
+
+function atualizarFiltroProduto(secao, lista) {
+  const select = document.getElementById('filtro-' + secao);
+  if (!select) return;
+  const atual = select.value;
+  const contagem = {};
+  lista.forEach(i => { const k = i.produto || '_sem'; contagem[k] = (contagem[k] || 0) + 1; });
+
+  const opcoes = Object.keys(contagem)
+    .map(k => ({ k, nome: k === '_sem' ? 'Produto não identificado' : nomeProduto(k) }))
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+
+  select.innerHTML = `<option value="">Todos os produtos (${lista.length})</option>` +
+    opcoes.map(o => `<option value="${esc(o.k)}">${esc(o.nome)} (${contagem[o.k]})</option>`).join('');
+  if (atual && contagem[atual]) select.value = atual;
 }
 
 function renderCards(secao) {
   const container = document.getElementById('cards-' + secao);
   if (!container) return;
   const lista = utmsCustom[secao] || [];
+  const countEl = document.getElementById('count-' + secao);
+
+  atualizarFiltroProduto(secao, lista);
+
   if (lista.length === 0) {
     container.innerHTML = '<p style="color: var(--text-muted); font-size: 13.5px;">Nenhuma UTM salva ainda pra esse canal.</p>';
+    if (countEl) countEl.textContent = '';
     return;
   }
-  container.innerHTML = lista.map(item => `
+
+  const busca = normalizarUTM(document.getElementById('busca-' + secao)?.value || '').replace(/_/g, ' ');
+  const filtroProduto = document.getElementById('filtro-' + secao)?.value || '';
+
+  const filtrada = lista.filter(i => {
+    if (filtroProduto) {
+      const k = i.produto || '_sem';
+      if (k !== filtroProduto) return false;
+    }
+    if (busca) {
+      const alvo = normalizarUTM(i.nome + ' ' + i.url + ' ' + (i.criadoPor || '')).replace(/_/g, ' ');
+      return busca.split(' ').every(p => alvo.includes(p));
+    }
+    return true;
+  });
+
+  if (countEl) {
+    countEl.textContent = filtrada.length === lista.length
+      ? `${lista.length} UTM${lista.length > 1 ? 's' : ''}`
+      : `Mostrando ${filtrada.length} de ${lista.length}`;
+  }
+
+  if (filtrada.length === 0) {
+    container.innerHTML = '<p style="color: var(--text-muted); font-size: 13.5px;">Nada encontrado com esse filtro.</p>';
+    return;
+  }
+
+  container.innerHTML = filtrada.map(item => {
+    const prod = item.produto ? `<span class="badge">${esc(nomeProduto(item.produto))}</span>` : '';
+    const pos = item.posicionamento ? `<span class="badge pos">${esc(labelPosicionamento(secao, item.posicionamento))}</span>` : '';
+    const autor = item.criadoPor ? ` · por ${esc(item.criadoPor)}` : '';
+    const id = esc(item.id);
+    return `
     <div class="utm-card">
       <div class="utm-header">
-        <div class="utm-name"><span class="utm-title">${item.nome}</span></div>
-        <button class="delete-btn" onclick="deletarUTM('${item.id}', '${secao}')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/></svg>
-          Excluir
-        </button>
+        <div class="utm-name"><span class="utm-title">${esc(item.nome)}</span>${prod}${pos}</div>
       </div>
-      <div class="utm-url">${item.url}</div>
-      <div style="display:flex; align-items:center; margin-top:10px;">
-        <button class="btn btn-ghost" onclick="copyText('${item.url.replace(/'/g, "\\'")}')">
+      <div class="utm-url">${esc(item.url)}</div>
+      <div class="utm-actions">
+        <button class="btn btn-ghost btn-sm" onclick="copiarSalvo('${id}', this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          Copiar link
+          Copiar
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="testarSalvo('${id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Testar
         </button>
       </div>
-      <div class="utm-meta">📅 Criado em ${item.createdAt}</div>
-    </div>
-  `).join('');
+      <div class="utm-meta">📅 Criado em ${esc(item.createdAt)}${autor}</div>
+    </div>`;
+  }).join('');
 }
 
-function copyText(text) {
-  navigator.clipboard.writeText(text).then(() => showToast());
+function copiarSalvo(id, btn) {
+  const item = utmPorId[id];
+  if (!item) return;
+  copiar(item.url).then(() => { marcarCopiado(btn, 'Copiado!'); showToast(); });
+}
+
+function testarSalvo(id) {
+  const item = utmPorId[id];
+  if (item) window.open(item.url, '_blank', 'noopener');
 }
 
 function renderAll() {
@@ -871,12 +1184,9 @@ function renderAll() {
 }
 
 function atualizarContadores() {
-  document.querySelectorAll('.nav-item').forEach(item => {
+  document.querySelectorAll('.nav-item[data-secao]').forEach(item => {
     const badge = item.querySelector('.nav-count');
-    if (!badge) return;
-    const label = item.querySelector('.label')?.textContent || '';
-    const canalKey = Object.keys(CANAIS).find(k => CANAIS[k].nome === label);
-    if (canalKey) badge.textContent = (utmsCustom[CANAIS[canalKey].secao] || []).length;
+    if (badge) badge.textContent = (utmsCustom[item.dataset.secao] || []).length;
   });
 }
 
@@ -912,6 +1222,7 @@ function showSection(id, el) {
 async function iniciar() {
   montarCanalCards();
   montarProdutoSelect();
+  document.getElementById('s-autor').value = lerAutor();
   await carregarCustom();
   renderAll();
 }
